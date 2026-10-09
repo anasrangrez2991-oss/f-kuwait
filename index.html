@@ -1550,21 +1550,24 @@
       }
     }
 
+    let currentHeroIdx = 0;
+
     function toggleLanguage() {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
       const html = document.documentElement;
-      const langBtn = document.getElementById('langBtnLabel');
 
       if (currentLang === 'en') {
         html.setAttribute('lang', 'en');
         html.setAttribute('dir', 'ltr');
-        langBtn.textContent = 'العربية';
       } else {
         html.setAttribute('lang', 'ar');
         html.setAttribute('dir', 'rtl');
-        langBtn.textContent = 'English';
       }
 
+      // Update Dashe Brand Name and Circular Language Toggle Button (EN / ع)
+      updateDasheHeaderLang(currentLang);
+
+      // Translate all data-i18n elements
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[currentLang] && translations[currentLang][key]) {
@@ -1572,16 +1575,51 @@
         }
       });
 
+      // Update search input placeholder
+      const searchInput = document.getElementById('serviceSearchInput');
+      if (searchInput) {
+        searchInput.placeholder = currentLang === 'ar' ? 'البحث في القائمة...' : 'Search menu...';
+      }
+
+      // Re-render dynamic elements
       renderCategoryPills();
       renderServices();
       updateBookingSummary();
-      updateDasheHeaderLang(currentLang);
-      lucide.createIcons();
+      setHeroPhoto(currentHeroIdx);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function updateDasheHeaderLang(lang) {
+      const brandName = document.getElementById('dasheBrandName');
+      const brandSub = document.getElementById('dasheBrandSub');
+      const langText = document.getElementById('dasheLangText');
+
+      if (lang === 'en') {
+        if (brandName) brandName.textContent = 'BATOUL';
+        if (brandSub) brandSub.textContent = 'GLITTER BY BATOUL · KUWAIT';
+        if (langText) langText.textContent = 'ع';
+      } else {
+        if (brandName) brandName.textContent = 'بَـتُـولْ';
+        if (brandSub) brandSub.textContent = 'غليتر باي بتول · الكويت';
+        if (langText) langText.textContent = 'EN';
+      }
+    }
+
+    function toggleDasheMenu() {
+      const overlay = document.getElementById('dasheMenuOverlay');
+      if (overlay) overlay.classList.toggle('hidden');
+    }
+
+    function closeDasheMenu() {
+      const overlay = document.getElementById('dasheMenuOverlay');
+      if (overlay) overlay.classList.add('hidden');
     }
 
     function toggleMobileMenu() {
-      const menu = document.getElementById('mobileMenu');
-      menu.classList.toggle('hidden');
+      toggleDasheMenu();
     }
 
     function initHeroPhoto() {
@@ -1589,6 +1627,7 @@
     }
 
     function setHeroPhoto(idx) {
+      currentHeroIdx = idx;
       const look = HERO_LOOKS[idx];
       const mainImg = document.getElementById('heroMainImg');
       const badgeText = document.getElementById('heroBadgeText');
